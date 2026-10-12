@@ -53,6 +53,7 @@ type config struct {
 	ListenAddr   string
 	MihomoURL    string
 	MihomoSecret string
+	MihomoSocket string
 }
 
 type mihomoSettings struct {
@@ -280,7 +281,7 @@ func newApplication(cfg config, dbPath string) (*application, error) {
 
 	svc := &service{
 		db:                     db,
-		client:                 &http.Client{Timeout: 10 * time.Second},
+		client:                 newMihomoClient(cfg.MihomoSocket),
 		now:                    time.Now,
 		cfg:                    cfg,
 		mihomoSettings:         runtimeSettings,
@@ -379,9 +380,27 @@ func loadConfig() (config, error) {
 		ListenAddr:   getenv("TRAFFIC_MONITOR_LISTEN", defaultListenAddr),
 		MihomoURL:    strings.TrimRight(getenv("MIHOMO_URL", ""), "/"),
 		MihomoSecret: getenv("MIHOMO_SECRET", ""),
+		MihomoSocket: strings.TrimSpace(getenv("MIHOMO_SOCKET", "")),
 	}
 
 	return cfg, nil
+}
+
+// newMihomoClient uses the existing local controller socket without opening
+// a TCP controller or changing Mihomo configuration.
+func newMihomoClient(socketPath string) *http.Client {
+	client := &http.Client{Timeout: 10 * time.Second}
+	if socketPath != "" {
+		client.Transport = &http.Transport{
+			DialContext: func(ctx context.Context, _, _ string) (net.Conn, error) {
+				return (&net.Dialer{}).DialContext(ctx, "unix", socketPath)
+			},
+			MaxIdleConns:        1,
+			MaxIdleConnsPerHost: 1,
+			IdleConnTimeout:     30 * time.Second,
+		}
+	}
+	return client
 }
 
 func defaultDatabasePath() string {

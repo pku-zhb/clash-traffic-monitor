@@ -202,6 +202,10 @@ docker run -d \
   - 如果你在 Mihomo 里手动把策略组改到别的节点，待恢复任务会自动取消，避免覆盖人工操作。
   - 如果原始节点已经不在当前策略组选项里，系统会记录一次恢复失败事件，并清理对应恢复任务。
 
+## macOS 本地 Socket
+
+设置 `MIHOMO_SOCKET=/tmp/verge/verge-mihomo.sock` 与 `MIHOMO_URL=http://localhost`，可直接读取 Clash Verge 现有 Unix Socket，无需开启 TCP Controller。设置 `TRAFFIC_MONITOR_LISTEN=127.0.0.1:18089` 将查询接口限制在本机；采集不依赖浏览器打开。
+
 ## 计数起点
 
 启动、切换 Mihomo 采集目标或检测到内核计数重置时，第一份成功读取的连接快照只建立计数基准，不会将已有连接的历史累计流量重复记入当前时间段。此后新出现的连接正常计入累计量。5 秒采样仍可能遗漏极短连接及连接结束前的尾量，适合定位流量大户，不用于精确计费。

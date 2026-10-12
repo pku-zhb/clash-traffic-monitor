@@ -5024,3 +5024,41 @@ func TestCollectorRebaselinesAfterTargetChangeAndCounterReset(t *testing.T) {
 		})
 	}
 }
+
+func TestMihomoUnixSocketTransport(t *testing.T) {
+	dir, err := os.MkdirTemp("/tmp", "tm-socket-")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(dir)
+	socket := filepath.Join(dir, "mihomo.sock")
+	listener, err := net.Listen("unix", socket)
+	if err != nil {
+		t.Fatal(err)
+	}
+	server := &http.Server{Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/connections" {
+			t.Errorf("unexpected path: %s", r.URL.Path)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprint(w, `{"uploadTotal":10,"downloadTotal":20,"connections":[]}`)
+	})}
+	go server.Serve(listener)
+	defer server.Close()
+	svc := newTestService(t)
+	svc.client = newMihomoClient(socket)
+	defer svc.client.CloseIdleConnections()
+	result, err := svc.fetchConnections(context.Background(), mihomoSettings{URL: "http://localhost"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.UploadTotal != 10 || result.DownloadTotal != 20 {
+		t.Fatalf("wrong response: %+v", result)
+	}
+	if err := server.Close(); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := svc.fetchConnections(context.Background(), mihomoSettings{URL: "http://localhost"}); err == nil {
+		t.Fatal("missing socket should fail without falling back to TCP")
+	}
+}
