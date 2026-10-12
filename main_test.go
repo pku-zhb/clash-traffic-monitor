@@ -1005,6 +1005,10 @@ func TestProcessConnectionsAutoSwitchTriggersOncePerMinute(t *testing.T) {
 	}
 
 	svc.setMihomoSettings(mihomoSettings{URL: "http://127.0.0.1:9090", Secret: "test-secret"})
+	// These flows begin after an empty startup snapshot.
+	if err := svc.processConnections(context.Background(), &connectionsResponse{}); err != nil {
+		t.Fatal(err)
+	}
 	currentTime := time.Date(2026, 4, 27, 12, 0, 10, 0, time.Local)
 	svc.now = func() time.Time { return currentTime }
 
@@ -1124,6 +1128,10 @@ func TestAutoSwitchOnlySwitchesTriggeredEnabledGroup(t *testing.T) {
 	}
 
 	svc.setMihomoSettings(mihomoSettings{URL: "http://127.0.0.1:9090"})
+	// These flows begin after an empty startup snapshot.
+	if err := svc.processConnections(context.Background(), &connectionsResponse{}); err != nil {
+		t.Fatal(err)
+	}
 	currentTime := time.Date(2026, 4, 28, 12, 0, 10, 0, time.Local)
 	svc.now = func() time.Time { return currentTime }
 
@@ -1225,6 +1233,10 @@ func TestAutoSwitchMatchesEnabledGroupWithinChains(t *testing.T) {
 	}
 
 	svc.setMihomoSettings(mihomoSettings{URL: "http://127.0.0.1:9090"})
+	// These flows begin after an empty startup snapshot.
+	if err := svc.processConnections(context.Background(), &connectionsResponse{}); err != nil {
+		t.Fatal(err)
+	}
 	currentTime := time.Date(2026, 4, 30, 2, 49, 10, 0, time.Local)
 	svc.now = func() time.Time { return currentTime }
 
@@ -1323,6 +1335,10 @@ func TestAutoSwitchIgnoresTrafficForGroupsNotEnabledInSettings(t *testing.T) {
 	}
 
 	svc.setMihomoSettings(mihomoSettings{URL: "http://127.0.0.1:9090"})
+	// These flows begin after an empty startup snapshot.
+	if err := svc.processConnections(context.Background(), &connectionsResponse{}); err != nil {
+		t.Fatal(err)
+	}
 	currentTime := time.Date(2026, 4, 28, 12, 0, 10, 0, time.Local)
 	svc.now = func() time.Time { return currentTime }
 
@@ -1418,6 +1434,10 @@ func TestAutoSwitchCooldownSkipsNextMinuteTrigger(t *testing.T) {
 	}
 
 	svc.setMihomoSettings(mihomoSettings{URL: "http://127.0.0.1:9090"})
+	// These flows begin after an empty startup snapshot.
+	if err := svc.processConnections(context.Background(), &connectionsResponse{}); err != nil {
+		t.Fatal(err)
+	}
 	currentTime := time.Date(2026, 4, 27, 12, 0, 10, 0, time.Local)
 	svc.now = func() time.Time { return currentTime }
 
@@ -1515,6 +1535,10 @@ func TestAutoSwitchCreatesRestoreSession(t *testing.T) {
 		}
 
 		svc.setMihomoSettings(mihomoSettings{URL: "http://127.0.0.1:9090"})
+		// These flows begin after an empty startup snapshot.
+		if err := svc.processConnections(context.Background(), &connectionsResponse{}); err != nil {
+			t.Fatal(err)
+		}
 		currentTime := time.Date(2026, 4, 28, 12, 0, 10, 0, time.Local)
 		svc.now = func() time.Time { return currentTime }
 
@@ -1618,6 +1642,10 @@ func TestAutoSwitchCreatesRestoreSession(t *testing.T) {
 		}
 
 		svc.setMihomoSettings(mihomoSettings{URL: "http://127.0.0.1:9090"})
+		// These flows begin after an empty startup snapshot.
+		if err := svc.processConnections(context.Background(), &connectionsResponse{}); err != nil {
+			t.Fatal(err)
+		}
 		currentTime := time.Date(2026, 4, 28, 12, 0, 10, 0, time.Local)
 		svc.now = func() time.Time { return currentTime }
 
@@ -1737,6 +1765,10 @@ func TestAutoSwitchCreatesRestoreSession(t *testing.T) {
 		}
 
 		svc.setMihomoSettings(mihomoSettings{URL: "http://127.0.0.1:9090"})
+		// These flows begin after an empty startup snapshot.
+		if err := svc.processConnections(context.Background(), &connectionsResponse{}); err != nil {
+			t.Fatal(err)
+		}
 		currentTime := time.Date(2026, 4, 28, 12, 0, 10, 0, time.Local)
 		svc.now = func() time.Time { return currentTime }
 
@@ -1834,6 +1866,10 @@ func TestAutoSwitchCreatesRestoreSession(t *testing.T) {
 		}
 
 		svc.setMihomoSettings(mihomoSettings{URL: "http://127.0.0.1:9090"})
+		// These flows begin after an empty startup snapshot.
+		if err := svc.processConnections(context.Background(), &connectionsResponse{}); err != nil {
+			t.Fatal(err)
+		}
 		currentTime := time.Date(2026, 4, 28, 12, 0, 10, 0, time.Local)
 		svc.now = func() time.Time { return currentTime }
 
@@ -1951,6 +1987,10 @@ func TestAutoSwitchCreatesRestoreSession(t *testing.T) {
 				}
 
 				svc.setMihomoSettings(mihomoSettings{URL: "http://127.0.0.1:9090"})
+				// These flows begin after an empty startup snapshot.
+				if err := svc.processConnections(context.Background(), &connectionsResponse{}); err != nil {
+					t.Fatal(err)
+				}
 				currentTime := time.Date(2026, 4, 28, 12, 0, 10, 0, time.Local)
 				svc.now = func() time.Time { return currentTime }
 
@@ -2041,6 +2081,10 @@ func TestAutoSwitchCreatesRestoreSession(t *testing.T) {
 		}
 
 		svc.setMihomoSettings(mihomoSettings{URL: "http://127.0.0.1:9090"})
+		// These flows begin after an empty startup snapshot.
+		if err := svc.processConnections(context.Background(), &connectionsResponse{}); err != nil {
+			t.Fatal(err)
+		}
 		currentTime := time.Date(2026, 4, 28, 12, 0, 10, 0, time.Local)
 		svc.now = func() time.Time { return currentTime }
 
@@ -2193,6 +2237,10 @@ func TestAutoRestore(t *testing.T) {
 		}
 
 		svc.setMihomoSettings(mihomoSettings{URL: "http://127.0.0.1:9090"})
+		// These flows begin after an empty startup snapshot.
+		if err := svc.processConnections(context.Background(), &connectionsResponse{}); err != nil {
+			t.Fatal(err)
+		}
 		currentTime := time.Date(2026, 4, 28, 12, 0, 10, 0, time.Local)
 		svc.now = func() time.Time { return currentTime }
 
@@ -2284,6 +2332,10 @@ func TestAutoRestore(t *testing.T) {
 		}
 
 		svc.setMihomoSettings(mihomoSettings{URL: "http://127.0.0.1:9090"})
+		// These flows begin after an empty startup snapshot.
+		if err := svc.processConnections(context.Background(), &connectionsResponse{}); err != nil {
+			t.Fatal(err)
+		}
 		currentTime := time.Date(2026, 4, 28, 12, 0, 10, 0, time.Local)
 		svc.now = func() time.Time { return currentTime }
 
@@ -2380,6 +2432,10 @@ func TestAutoRestore(t *testing.T) {
 		}
 
 		svc.setMihomoSettings(mihomoSettings{URL: "http://127.0.0.1:9090"})
+		// These flows begin after an empty startup snapshot.
+		if err := svc.processConnections(context.Background(), &connectionsResponse{}); err != nil {
+			t.Fatal(err)
+		}
 		currentTime := time.Date(2026, 4, 28, 12, 0, 10, 0, time.Local)
 		svc.now = func() time.Time { return currentTime }
 
@@ -2467,6 +2523,10 @@ func TestAutoRestore(t *testing.T) {
 		}
 
 		svc.setMihomoSettings(mihomoSettings{URL: "http://127.0.0.1:9090"})
+		// These flows begin after an empty startup snapshot.
+		if err := svc.processConnections(context.Background(), &connectionsResponse{}); err != nil {
+			t.Fatal(err)
+		}
 		currentTime := time.Date(2026, 4, 28, 12, 0, 10, 0, time.Local)
 		svc.now = func() time.Time { return currentTime }
 
@@ -3679,7 +3739,9 @@ func newTestService(t *testing.T) *service {
 }
 
 func newTestServiceOnDB(db *sql.DB) *service {
+	// Most unit fixtures model an already observed empty startup snapshot.
 	return &service{
+		connectionsInitialized: true,
 		db:                     db,
 		now:                    time.Now,
 		domainGroupingEnabled:  loadDomainGroupingEnabled(db),
@@ -4866,5 +4928,99 @@ func TestExecuteAutoSwitchRespectsContextCancellation(t *testing.T) {
 	}
 	if !errors.Is(err, context.Canceled) {
 		t.Fatalf("expected context.Canceled, got %v", err)
+	}
+}
+
+func TestCollectorBaselinesExistingConnectionsAcrossRestart(t *testing.T) {
+	svc := newTestService(t)
+	svc.connectionsInitialized = false
+	snapshot := func(up, down int64) *connectionsResponse {
+		return &connectionsResponse{UploadTotal: up, DownloadTotal: down,
+			Connections: []connection{testConnection("existing", []string{"NodeA"}, up, down)}}
+	}
+	collect := func(s *service, payload *connectionsResponse) {
+		t.Helper()
+		if err := s.processConnections(context.Background(), payload); err != nil {
+			t.Fatal(err)
+		}
+	}
+	collect(svc, snapshot(1000, 1000000))
+	if len(svc.aggregateBuffer) != 0 {
+		t.Fatal("startup replayed existing traffic")
+	}
+	collect(svc, snapshot(1020, 1000300))
+	if err := svc.flushAggregateBuffer(); err != nil {
+		t.Fatal(err)
+	}
+	restarted := newTestServiceOnDB(svc.db)
+	restarted.connectionsInitialized = false
+	collect(restarted, snapshot(1020, 1000300))
+	collect(restarted, snapshot(1050, 1000700))
+	if err := restarted.flushAggregateBuffer(); err != nil {
+		t.Fatal(err)
+	}
+	var up, down int64
+	if err := svc.db.QueryRow("SELECT SUM(upload), SUM(download) FROM traffic_aggregated").Scan(&up, &down); err != nil {
+		t.Fatal(err)
+	}
+	if up != 50 || down != 700 {
+		t.Fatalf("restart duplicated traffic: up=%d down=%d", up, down)
+	}
+}
+
+func TestCollectorEmptyBaselineCountsNewConnections(t *testing.T) {
+	svc := newTestService(t)
+	svc.connectionsInitialized = false
+	if err := svc.processConnections(context.Background(), &connectionsResponse{}); err != nil {
+		t.Fatal(err)
+	}
+	if err := svc.processConnections(context.Background(), &connectionsResponse{Connections: []connection{testConnection("new", []string{"NodeA"}, 10, 200)}}); err != nil {
+		t.Fatal(err)
+	}
+	for _, entry := range svc.aggregateBuffer {
+		if entry.Upload != 10 || entry.Download != 200 {
+			t.Fatalf("new connection lost bytes: %+v", entry)
+		}
+	}
+	if len(svc.aggregateBuffer) != 1 {
+		t.Fatal("new connection was not counted")
+	}
+}
+
+func TestCollectorRebaselinesAfterTargetChangeAndCounterReset(t *testing.T) {
+	for _, reset := range []string{"target", "core"} {
+		t.Run(reset, func(t *testing.T) {
+			svc := newTestService(t)
+			svc.connectionsInitialized = false
+			first := &connectionsResponse{UploadTotal: 1000, DownloadTotal: 1000,
+				Connections: []connection{testConnection("existing", []string{"NodeA"}, 100, 100)}}
+			if err := svc.processConnections(context.Background(), first); err != nil {
+				t.Fatal(err)
+			}
+			if reset == "target" {
+				svc.setMihomoSettings(mihomoSettings{URL: "http://localhost:9090"})
+			}
+			next := &connectionsResponse{UploadTotal: 500, DownloadTotal: 500,
+				Connections: []connection{testConnection("existing", []string{"NodeA"}, 50, 50)}}
+			if err := svc.processConnections(context.Background(), next); err != nil {
+				t.Fatal(err)
+			}
+			if len(svc.aggregateBuffer) != 0 {
+				t.Fatal("reset replayed counters")
+			}
+			next.UploadTotal, next.DownloadTotal = 520, 530
+			next.Connections[0].Upload, next.Connections[0].Download = 70, 80
+			if err := svc.processConnections(context.Background(), next); err != nil {
+				t.Fatal(err)
+			}
+			for _, entry := range svc.aggregateBuffer {
+				if entry.Upload != 20 || entry.Download != 30 {
+					t.Fatalf("wrong post-reset delta: %+v", entry)
+				}
+			}
+			if len(svc.aggregateBuffer) != 1 {
+				t.Fatal("post-reset traffic missing")
+			}
+		})
 	}
 }

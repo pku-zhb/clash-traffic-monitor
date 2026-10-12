@@ -189,6 +189,7 @@ type service struct {
 	domainGroupingEnabled  bool
 	filterDirectTraffic    bool
 	lastConnections        map[string]connection
+	connectionsInitialized bool
 	lastUploadTotal        int64
 	lastDownloadTotal      int64
 	lastAutoSwitchAt       int64
@@ -1301,6 +1302,7 @@ func (s *service) setMihomoSettings(settings mihomoSettings) {
 		s.lastConnections = make(map[string]connection)
 		s.lastUploadTotal = 0
 		s.lastDownloadTotal = 0
+		s.connectionsInitialized = false
 	}
 
 	s.mihomoSettings = settings
@@ -1415,8 +1417,11 @@ func (s *service) processConnections(ctx context.Context, payload *connectionsRe
 	if payload.UploadTotal < s.lastUploadTotal || payload.DownloadTotal < s.lastDownloadTotal {
 		log.Printf("detected Mihomo counter reset, clearing in-memory baselines")
 		s.lastConnections = make(map[string]connection)
+		s.connectionsInitialized = false
 	}
 
+	baselineOnly := !s.connectionsInitialized
+	s.connectionsInitialized = true
 	s.lastUploadTotal = payload.UploadTotal
 	s.lastDownloadTotal = payload.DownloadTotal
 
@@ -1425,6 +1430,13 @@ func (s *service) processConnections(ctx context.Context, payload *connectionsRe
 
 	for _, conn := range payload.Connections {
 		activeIDs[conn.ID] = struct{}{}
+
+		// Existing counters predate this collection session. Establish a baseline
+		// once, including an empty snapshot, then count new connections normally.
+		if baselineOnly {
+			s.lastConnections[conn.ID] = conn
+			continue
+		}
 
 		prev, hasPrev := s.lastConnections[conn.ID]
 		uploadDelta := conn.Upload
