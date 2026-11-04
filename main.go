@@ -181,6 +181,8 @@ type mihomoProxiesResponse struct {
 }
 
 type service struct {
+	lastPollSuccess        time.Time
+	lastPollError          string
 	db                     *sql.DB
 	client                 *http.Client
 	now                    func() time.Time
@@ -1296,13 +1298,24 @@ func (s *service) collectOnce(ctx context.Context) {
 
 	resp, err := s.fetchConnections(ctx, settings)
 	if err != nil {
+		s.mu.Lock()
+		s.lastPollError = "mihomo_unavailable"
+		s.mu.Unlock()
 		log.Printf("poll Mihomo connections: %v", err)
 		return
 	}
 
 	if err := s.processConnections(ctx, resp); err != nil {
+		s.mu.Lock()
+		s.lastPollError = "collection_failed"
+		s.mu.Unlock()
 		log.Printf("process connections: %v", err)
+		return
 	}
+	s.mu.Lock()
+	s.lastPollSuccess = s.now()
+	s.lastPollError = ""
+	s.mu.Unlock()
 }
 
 func (s *service) currentMihomoSettings() mihomoSettings {
@@ -2303,7 +2316,18 @@ func (s *service) handleHealth(w http.ResponseWriter, r *http.Request) {
 		writeMethodNotAllowed(w)
 		return
 	}
-	writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+	s.mu.Lock()
+	last, pollError := s.lastPollSuccess, s.lastPollError
+	s.mu.Unlock()
+	status, code := "ok", http.StatusOK
+	if last.IsZero() || s.now().Sub(last) > time.Minute || pollError != "" {
+		status, code = "error", http.StatusServiceUnavailable
+	}
+	lastMS := int64(0)
+	if !last.IsZero() {
+		lastMS = last.UnixMilli()
+	}
+	writeJSON(w, code, map[string]any{"status": status, "lastSuccessMs": lastMS, "pollError": pollError})
 }
 
 func (s *service) handleMihomoSettings(w http.ResponseWriter, r *http.Request) {

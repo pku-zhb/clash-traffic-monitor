@@ -251,3 +251,10 @@ docker run -d \
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=zhf883680/clash-traffic-monitor&type=Date)](https://star-history.com/#zhf883680/clash-traffic-monitor&Date)
+
+### Collector health
+
+`GET /health` reports `lastSuccessMs` and a fixed `pollError` code. It returns
+503 until collection has succeeded, when the last successful poll is over one
+minute old, or when a subsequent poll failed. A successful poll with no traffic
+still counts as healthy. Mill reads this endpoint without browser activity.

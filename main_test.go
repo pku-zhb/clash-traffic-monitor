@@ -4797,7 +4797,8 @@ func TestApplicationServesAndShutsDownIdempotently(t *testing.T) {
 	}
 	body, _ := io.ReadAll(resp.Body)
 	resp.Body.Close()
-	if resp.StatusCode != http.StatusOK || !strings.Contains(string(body), "ok") {
+	// Serving HTTP without a working collector must not advertise health.
+	if resp.StatusCode != http.StatusServiceUnavailable || !strings.Contains(string(body), "error") {
 		t.Fatalf("unexpected health response: %d %s", resp.StatusCode, body)
 	}
 
@@ -5060,5 +5061,29 @@ func TestMihomoUnixSocketTransport(t *testing.T) {
 	}
 	if _, err := svc.fetchConnections(context.Background(), mihomoSettings{URL: "http://localhost"}); err == nil {
 		t.Fatal("missing socket should fail without falling back to TCP")
+	}
+}
+
+// A serving HTTP endpoint must not hide a stopped or failing collector.
+func TestHealthRequiresFreshSuccessfulCollection(t *testing.T) {
+	now := time.Unix(1800000000, 0)
+	for _, tc := range []struct {
+		name string
+		age  time.Duration
+		err  string
+		want int
+	}{
+		{"fresh idle collection", 5 * time.Second, "", 200},
+		{"stale", 2 * time.Minute, "", 503},
+		{"backend error", time.Second, "mihomo_unavailable", 503},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			s := &service{now: func() time.Time { return now }, lastPollSuccess: now.Add(-tc.age), lastPollError: tc.err}
+			out := httptest.NewRecorder()
+			s.handleHealth(out, httptest.NewRequest(http.MethodGet, "/health", nil))
+			if out.Code != tc.want {
+				t.Fatalf("health %d, want %d", out.Code, tc.want)
+			}
+		})
 	}
 }
